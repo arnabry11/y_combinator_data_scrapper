@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Data Scrapper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container mt-5">
+      <h1 class="mb-4">Company Data Scrapper</h1>
+      <form id='scape-form' class='mb-3'>
+        <div class="mb-3">
+          <label for="n" class="form-label">Number of Companies</label>
+          <input type="number" class="form-control" id="n" name="n">
+        </div>
+        <div class="mb-3">
+          <label for="batch" class="form-label">Batch</label>
+          <input type="text" class="form-control" id="batch" name="filters[batch]">
+        </div>
+        <div class="mb-3">
+          <label for="industry" class="form-label">Industry</label>
+          <input type="text" class="form-control" id="industry" name="filters[industry]">
+        </div>
+        <div class="mb-3">
+          <label for="region" class="form-label">Region</label>
+          <input type="text" class="form-control" id="region" name="filters[region]">
+        </div>
+        <div class="mb-3">
+          <label for="tag" class="form-label">Tag</label>
+          <input type="text" class="form-control" id="tag" name="filters[tag]">
+        </div>
+        <div class="mb-3">
+          <label for="team_size" class="form-label">Company Size</label>
+          <input type="text" class="form-control" id="team_size" name="filters[team_size]">
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="top_company" name="filters[top_company]">
+          <label class="form-check-label" for="top_company">Top Company</label>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="is_hiring" name="filters[is_hiring]">
+          <label class="form-check-label" for="is_hiring">Is Hiring</label>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="nonprofit" name="filters[nonprofit]">
+          <label class="form-check-label" for="nonprofit">Nonprofit</label>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="black_foundedtop" name="filters[black_foundedtop]">
+          <label class="form-check-label" for="black_founded">Black Founded Top</label>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="hispanic_latino_founded" name="filters[hispanic_latino_founded]">
+          <label class="form-check-label" for="hispanic_latino_founded">Hispanic Latino Founded</label>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="women_founded" name="filters[women_founded]">
+          <label class="form-check-label" for="women_founded">Women Founded</label>
+        </div>
+        <button type="submit" id='form_submit' class="btn btn-primary">Scrape</button>
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        $('#form_submit').on('click', function(event) {
+          event.preventDefault();
+          button = $(this);
+          button.prop('disabled', true);
+          button.html('Scraping Data. Please wait....');
+
+          $.ajax({
+            url: '/api/scrape',
+            method: 'POST',
+            data: button.closest('form').serialize(),
+            xhrFields: {
+              responseType: 'blob'
+            },
+            success: function(data) {
+              button.prop('disabled', false);
+              button.html('Scrape');
+              var download_link = document.createElement('a');
+              var url = window.URL.createObjectURL(data);
+              download_link.href = url;
+              download_link.download = 'companies.csv';
+              document.body.append(download_link);
+              download_link.click();
+              download_link.remove();
+              window.URL.revokeObjectURL(url);
+            },
+            error: function() {
+              button.prop('disabled', false);
+              button.html('Scrape');
+              alert('An error occurred while scraping data.');
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
